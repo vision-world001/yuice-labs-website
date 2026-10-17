@@ -3,10 +3,12 @@ import { Brand } from '../ui/Brand';
 import { Icon } from '../ui/Icon';
 
 const navigationLinks = [
-  { label: 'About', href: '#about' },
-  { label: 'What we’re building', href: '#approach' },
-  { label: 'How it works', href: '#how-it-works' },
-  { label: 'Use Cases', href: '#use-cases' },
+  { label: 'Challenges', href: '/#challenges' },
+  { label: 'What we’re building', href: '/#approach' },
+  { label: 'How it works', href: '/#how-it-works' },
+  { label: 'Operation', href: '/#ai-operations' },
+  { label: 'Trust', href: '/#trust' },
+  // { label: 'Careers', href: '/careers' },
 ];
 
 export function SiteHeader() {
@@ -46,11 +48,11 @@ export function SiteHeader() {
               {label}
             </a>
           ))}
-          <a className="nav-cta nav-cta-menu" href="#contact" onClick={closeMenu}>
+          <a className="nav-cta nav-cta-menu" href="/#contact" onClick={closeMenu}>
             Talk to our team <Icon name="arrow" size={18} />
           </a>
         </nav>
-        <a className="nav-cta" href="#contact">
+        <a className="nav-cta" href="/#contact">
           Talk to our team <Icon name="arrow" size={18} />
         </a>
       </div>

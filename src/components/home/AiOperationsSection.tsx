@@ -5,7 +5,7 @@ import { SectionLabel } from '../ui/SectionLabel';
 
 export function AiOperationsSection() {
   return (
-    <section className="ai-operations dark-section">
+    <section className="ai-operations dark-section" id="ai-operations">
       <div className="page-width ai-grid">
         <div className="ai-copy">
           <SectionLabel>AI-powered asset operations</SectionLabel>

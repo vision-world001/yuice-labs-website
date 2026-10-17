@@ -5,7 +5,7 @@ import { SectionLabel } from '../ui/SectionLabel';
 
 export function TrustSection() {
   return (
-    <section className="trust dark-section">
+    <section className="trust dark-section" id="trust">
       <div className="page-width trust-grid">
         <div className="trust-visual">
           <img

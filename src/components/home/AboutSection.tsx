@@ -4,7 +4,7 @@ import { SectionLabel } from '../ui/SectionLabel';
 
 export function AboutSection() {
   return (
-    <section className="about light-section" id="about">
+    <section className="about light-section" id="challenges">
       <div className="page-width about-grid">
         <div className="about-copy">
           <SectionLabel>The challenge</SectionLabel>

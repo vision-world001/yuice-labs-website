@@ -2,12 +2,13 @@ import { Brand } from '../ui/Brand';
 import { Icon } from '../ui/Icon';
 
 const footerLinks = [
-  { label: 'Home', href: '#home' },
-  { label: 'Company', href: '#about' },
-  { label: 'Technology', href: '#how-it-works' },
-  { label: 'Use Cases', href: '#use-cases' },
-  { label: 'Our Vision', href: '#approach' },
-  { label: 'Contact', href: '#contact' },
+  { label: 'Home', href: '/#home' },
+  { label: 'Company', href: '/about' },
+  { label: 'Technology', href: '/#how-it-works' },
+  { label: 'Use Cases', href: '/#use-cases' },
+  { label: 'Our Vision', href: '/#approach' },
+  { label: 'Careers', href: '/careers' },
+  { label: 'Contact', href: '/#contact' },
 ];
 
 const socialLinks = [
@@ -43,8 +44,8 @@ export function SiteFooter() {
         <div className="footer-bottom">
           <span className="footer-copyright">© {new Date().getFullYear()} Yuice Labs. All rights reserved.</span>
           <div>
-            <a href="#contact">Privacy Policy</a>
-            <a href="#contact">Terms of Use</a>
+            <a href="/#contact">Privacy Policy</a>
+            <a href="/#contact">Terms of Use</a>
           </div>
         </div>
       </div>

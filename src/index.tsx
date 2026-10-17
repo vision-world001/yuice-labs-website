@@ -1,4 +1,6 @@
 import ReactDOM from 'react-dom/client';
+import { AboutPage } from './pages/AboutPage';
+import { CareersPage } from './pages/CareersPage';
 import { HomePage } from './pages/HomePage';
 import './index.css';
 
@@ -10,4 +12,8 @@ if (!rootNode) {
 
 const root = ReactDOM.createRoot(rootNode);
 
-root.render(<HomePage />);
+// Minimal path routing: one extra page, so no router dependency is needed.
+const path = window.location.pathname.replace(/\/+$/, '') || '/';
+const pages: Record<string, () => React.JSX.Element> = { '/about': AboutPage, '/careers': CareersPage };
+const Page = pages[path] ?? HomePage;
+root.render(<Page />);
