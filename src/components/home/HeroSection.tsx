@@ -1,6 +1,7 @@
 import { HeroIllustration } from './HeroIllustration';
 import { Icon } from '../ui/Icon';
 import { SectionLabel } from '../ui/SectionLabel';
+import { TypewriterTitle } from './TypewriterTitle';
 
 export function HeroSection() {
   return (
@@ -8,11 +9,7 @@ export function HeroSection() {
       <div className="page-width hero-grid">
         <div className="hero-copy">
           <SectionLabel>Introducing Yuice Protocol</SectionLabel>
-          <h1>
-            Real-world assets.
-            <br />
-            <span>Programmable finance.</span>
-          </h1>
+          <TypewriterTitle lead="Real-world assets." accent="Programmable finance." />
           <p>
             Financial infrastructure for tokenized real-world assets—bringing
             ownership, cash flows, intelligent operations, and stablecoin
