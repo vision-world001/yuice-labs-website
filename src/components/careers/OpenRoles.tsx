@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Link } from 'react-router';
 import { departments, roles, type Department } from '../../data/careersPage';
 import { Icon } from '../ui/Icon';
 import { SectionLabel } from '../ui/SectionLabel';
@@ -44,7 +45,7 @@ export function OpenRoles() {
           <ul className="role-list">
             {visible.map((role) => (
               <li className="role-row" key={role.id}>
-                <a className="role-summary" href={`/careers/${role.id}`}>
+                <Link className="role-summary" to={`/careers/${role.id}`}>
                   <span className="role-main">
                     <span className="role-title">{role.title}</span>
                     <small>{role.team ?? role.department}</small>
@@ -55,7 +56,7 @@ export function OpenRoles() {
                   <span className="role-arrow">
                     <Icon name="arrow" size={16} />
                   </span>
-                </a>
+                </Link>
               </li>
             ))}
           </ul>

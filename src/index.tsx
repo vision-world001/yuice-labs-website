@@ -1,9 +1,10 @@
 import ReactDOM from 'react-dom/client';
+import { createBrowserRouter, Navigate, RouterProvider } from 'react-router';
+import { SiteLayout } from './layouts/SiteLayout';
 import { AboutPage } from './pages/AboutPage';
 import { CareersPage } from './pages/CareersPage';
 import { HomePage } from './pages/HomePage';
-import { JobPage } from './pages/JobPage';
-import { findRole } from './data/careersPage';
+import { JobRoute } from './pages/JobPage';
 import './index.css';
 
 const rootNode = document.getElementById('root');
@@ -12,19 +13,19 @@ if (!rootNode) {
   throw new Error('Root element "#root" was not found.');
 }
 
-const root = ReactDOM.createRoot(rootNode);
+// Every page renders inside SiteLayout (header, footer, scroll handling) via its <Outlet />.
+const router = createBrowserRouter([
+  {
+    element: <SiteLayout />,
+    children: [
+      { index: true, element: <HomePage /> },
+      { path: 'about', element: <AboutPage /> },
+      { path: 'careers', element: <CareersPage /> },
+      { path: 'careers/:roleId', element: <JobRoute /> },
+      // Unknown addresses fall back to the home page.
+      { path: '*', element: <Navigate to="/" replace /> },
+    ],
+  },
+]);
 
-// Minimal path routing: a few fixed pages plus one page per open role (/careers/<role-id>).
-const path = window.location.pathname.replace(/\/+$/, '') || '/';
-const pages: Record<string, () => React.JSX.Element> = { '/about': AboutPage, '/careers': CareersPage };
-const role = path.startsWith('/careers/') ? findRole(decodeURIComponent(path.slice('/careers/'.length))) : undefined;
-
-if (role) {
-  root.render(<JobPage role={role} />);
-} else if (path.startsWith('/careers/')) {
-  // Unknown or closed role: send people back to the list of openings.
-  window.location.replace('/careers#open-positions');
-} else {
-  const Page = pages[path] ?? HomePage;
-  root.render(<Page />);
-}
+ReactDOM.createRoot(rootNode).render(<RouterProvider router={router} />);

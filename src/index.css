@@ -478,6 +478,21 @@ h3 { margin-bottom: var(--space-xs); font-size: var(--fs-subtitle); line-height:
 /* The CSS reset zeroes every margin, so restore the dialog's centring explicitly */
 .apply-dialog { position: fixed; inset: 0; margin: auto; width: min(720px, calc(100% - 32px)); height: fit-content; max-height: calc(100dvh - 32px); padding: 0; border: 0; border-radius: 18px; background: transparent; overflow: auto; }
 .apply-dialog::backdrop { background: rgba(3, 19, 33, .7); -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); }
+/* Fade (and gently rise) in on open, fade out on close; the backdrop fades with it.
+   display/overlay transition discretely so the closing fade can finish before the dialog is hidden. */
+.apply-dialog, .apply-dialog::backdrop { transition: opacity .3s ease, transform .3s cubic-bezier(.2, .7, .2, 1), display .3s allow-discrete, overlay .3s allow-discrete; }
+.apply-dialog { opacity: 0; transform: translateY(16px) scale(.98); }
+.apply-dialog[open] { opacity: 1; transform: none; }
+.apply-dialog::backdrop { opacity: 0; }
+.apply-dialog[open]::backdrop { opacity: 1; }
+@starting-style {
+  .apply-dialog[open] { opacity: 0; transform: translateY(16px) scale(.98); }
+  .apply-dialog[open]::backdrop { opacity: 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .apply-dialog, .apply-dialog[open] { transform: none; }
+  @starting-style { .apply-dialog[open] { transform: none; } }
+}
 .apply-panel { display: grid; gap: var(--space-md); padding: var(--space-lg); border-radius: 18px; color: var(--ink); background: var(--pale); }
 .apply-panel .contact-form { padding: 0; border: 0; background: transparent; box-shadow: none; }
 .field-optional { color: #8e9aa3; font-size: 13px; font-weight: 400; }

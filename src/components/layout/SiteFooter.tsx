@@ -1,3 +1,4 @@
+import { Link } from 'react-router';
 import { Brand } from '../ui/Brand';
 import { Icon } from '../ui/Icon';
 
@@ -44,8 +45,8 @@ export function SiteFooter() {
 
         <div className="footer-legal">
           <nav aria-label="Legal">
-            <a href="/#contact">Privacy Policy</a>
-            <a href="/#contact">Terms of Use</a>
+            <Link to="/#contact">Privacy Policy</Link>
+            <Link to="/#contact">Terms of Use</Link>
           </nav>
           <small>© {new Date().getFullYear()} Yuice Labs. All rights reserved.</small>
         </div>

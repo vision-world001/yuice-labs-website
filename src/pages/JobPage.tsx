@@ -1,9 +1,9 @@
 import { useEffect, useRef, useState } from 'react';
+import { Link, Navigate, useParams } from 'react-router';
 import { ApplicationForm, type ApplicationFormHandle } from '../components/careers/ApplicationForm';
 import { Icon, type IconName } from '../components/ui/Icon';
 import { SectionLabel } from '../components/ui/SectionLabel';
-import { jobCulture, type Role } from '../data/careersPage';
-import { SiteLayout } from '../layouts/SiteLayout';
+import { findRole, jobCulture, type Role } from '../data/careersPage';
 
 interface JobPageProps {
   role: Role;
@@ -66,13 +66,13 @@ export function JobPage({ role }: JobPageProps) {
   }
 
   return (
-    <SiteLayout>
+    <>
       <section className="job-hero dark-section">
         <img className="job-hero-art" src="/job-hero-art.webp" alt="" />
         <div className="page-width job-hero-copy">
-          <a className="job-back" href="/careers#open-positions">
+          <Link className="job-back" to="/careers#open-positions">
             <span aria-hidden="true">←</span> Back to all openings
-          </a>
+          </Link>
           <p className="job-tags">
             <span>{role.department}</span>
             <span>{role.location}</span>
@@ -182,6 +182,15 @@ export function JobPage({ role }: JobPageProps) {
       </section>
 
       <ApplicationForm ref={formRef} />
-    </SiteLayout>
+    </>
   );
+}
+
+/** Route element for /careers/:roleId; unknown or closed roles go back to the list of openings. */
+export function JobRoute() {
+  const { roleId = '' } = useParams();
+  const role = findRole(roleId);
+  if (!role) return <Navigate to="/careers#open-positions" replace />;
+  // Keyed by role so moving between job pages starts with fresh state.
+  return <JobPage role={role} key={role.id} />;
 }

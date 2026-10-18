@@ -1,8 +1,8 @@
 import { useEffect } from 'react';
+import { Link } from 'react-router';
 import { aboutFacts, keyFeatures, missionVision, roadmap } from '../data/aboutPage';
 import { Icon } from '../components/ui/Icon';
 import { SectionLabel } from '../components/ui/SectionLabel';
-import { SiteLayout } from '../layouts/SiteLayout';
 
 export function AboutPage() {
   useEffect(() => {
@@ -10,7 +10,7 @@ export function AboutPage() {
   }, []);
 
   return (
-    <SiteLayout>
+    <>
       <section className="about-hero dark-section">
         <div className="page-width">
           <SectionLabel>About Yuice Labs</SectionLabel>
@@ -83,15 +83,15 @@ export function AboutPage() {
         <div className="page-width cta-band">
           <h2>Let’s build it together.</h2>
           <div className="hero-actions">
-            <a className="button button-primary" href="/#contact">
+            <Link className="button button-primary" to="/#contact">
               Get in touch <Icon name="arrow" size={16} />
-            </a>
-            <a className="button button-outline" href="/careers">
+            </Link>
+            <Link className="button button-outline" to="/careers">
               Join the team
-            </a>
+            </Link>
           </div>
         </div>
       </section>
-    </SiteLayout>
+    </>
   );
 }

@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { Link, NavLink } from 'react-router';
 import { Brand } from '../ui/Brand';
 import { Icon } from '../ui/Icon';
 
@@ -54,22 +55,25 @@ export function SiteHeader() {
           className={menuOpen ? 'main-nav is-open' : 'main-nav'}
           aria-label="Main navigation"
         >
-          {navigationLinks.map(({ label, href }) => (
-            <a
-              href={href}
-              key={href}
-              onClick={closeMenu}
-            >
-              {label}
-            </a>
-          ))}
-          <a className="nav-cta nav-cta-menu" href="/#contact" onClick={closeMenu}>
+          {navigationLinks.map(({ label, href }) =>
+            // Page links get the active underline; links to home-page sections are plain.
+            href.includes('#') ? (
+              <Link to={href} key={href} onClick={closeMenu}>
+                {label}
+              </Link>
+            ) : (
+              <NavLink to={href} key={href} onClick={closeMenu}>
+                {label}
+              </NavLink>
+            ),
+          )}
+          <Link className="nav-cta nav-cta-menu" to="/#contact" onClick={closeMenu}>
             Talk to our team <Icon name="arrow" size={18} />
-          </a>
+          </Link>
         </nav>
-        <a className="nav-cta" href="/#contact">
+        <Link className="nav-cta" to="/#contact">
           Talk to our team <Icon name="arrow" size={18} />
-        </a>
+        </Link>
       </div>
     </header>
   );

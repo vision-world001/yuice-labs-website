@@ -1,3 +1,4 @@
+import { Link } from 'react-router';
 import { companyHighlights } from '../../data/careersPage';
 import { Icon } from '../ui/Icon';
 import { SectionLabel } from '../ui/SectionLabel';
@@ -14,9 +15,9 @@ export function CompanySection() {
             operations. Our mission is to make real-world assets more accessible, transparent, and financially
             programmable.
           </p>
-          <a className="careers-link" href="/about">
+          <Link className="careers-link" to="/about">
             Learn more about Yuice Labs <Icon name="arrow" size={16} />
-          </a>
+          </Link>
         </div>
         <ul className="highlight-grid">
           {companyHighlights.map(({ icon, title, body }) => (

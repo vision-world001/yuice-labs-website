@@ -5,7 +5,6 @@ import { CareersHero } from '../components/careers/CareersHero';
 import { CompanySection } from '../components/careers/CompanySection';
 import { CultureSection } from '../components/careers/CultureSection';
 import { OpenRoles } from '../components/careers/OpenRoles';
-import { SiteLayout } from '../layouts/SiteLayout';
 
 export function CareersPage() {
   const formRef = useRef<ApplicationFormHandle>(null);
@@ -15,13 +14,13 @@ export function CareersPage() {
   }, []);
 
   return (
-    <SiteLayout>
+    <>
       <CareersHero />
       <CompanySection />
       <OpenRoles />
       <CultureSection />
       <CareersCta onGetInTouch={() => formRef.current?.open('general')} />
       <ApplicationForm ref={formRef} />
-    </SiteLayout>
+    </>
   );
 }

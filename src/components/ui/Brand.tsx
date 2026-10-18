@@ -1,8 +1,10 @@
+import { Link } from 'react-router';
+
 export function Brand() {
   return (
-    <a className="brand" href="/" aria-label="Yuice Labs home">
+    <Link className="brand" to="/" aria-label="Yuice Labs home">
       <img className="brand-mark" src="/yuice-mark.png" alt="" />
       <span>yuice labs</span>
-    </a>
+    </Link>
   );
 }
