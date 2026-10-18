@@ -1,8 +1,9 @@
 import { useEffect, useRef } from 'react';
 import { ApplicationForm, type ApplicationFormHandle } from '../components/careers/ApplicationForm';
+import { CareersCta } from '../components/careers/CareersCta';
 import { CareersHero } from '../components/careers/CareersHero';
+import { CompanySection } from '../components/careers/CompanySection';
 import { CultureSection } from '../components/careers/CultureSection';
-import { HiringProcess } from '../components/careers/HiringProcess';
 import { OpenRoles } from '../components/careers/OpenRoles';
 import { SiteLayout } from '../layouts/SiteLayout';
 
@@ -13,17 +14,13 @@ export function CareersPage() {
     document.title = 'Careers — Yuice Labs';
   }, []);
 
-  function handleApply(roleId: string) {
-    formRef.current?.prefillRole(roleId);
-    document.getElementById('apply')?.scrollIntoView({ behavior: 'smooth' });
-  }
-
   return (
     <SiteLayout>
       <CareersHero />
+      <CompanySection />
+      <OpenRoles />
       <CultureSection />
-      <OpenRoles onApply={handleApply} />
-      <HiringProcess />
+      <CareersCta onGetInTouch={() => formRef.current?.open('general')} />
       <ApplicationForm ref={formRef} />
     </SiteLayout>
   );

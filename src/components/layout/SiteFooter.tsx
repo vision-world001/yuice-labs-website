@@ -1,52 +1,53 @@
 import { Brand } from '../ui/Brand';
 import { Icon } from '../ui/Icon';
 
-const footerLinks = [
-  { label: 'Home', href: '/#home' },
-  { label: 'Company', href: '/about' },
-  { label: 'Technology', href: '/#how-it-works' },
-  { label: 'Use Cases', href: '/#use-cases' },
-  { label: 'Our Vision', href: '/#approach' },
-  { label: 'Careers', href: '/careers' },
-  { label: 'Contact', href: '/#contact' },
-];
-
 const socialLinks = [
   { label: 'LinkedIn', href: 'https://www.linkedin.com/', icon: 'linkedin' as const },
-  { label: 'X', href: 'https://x.com/', icon: 'x' as const },
-  { label: 'Instagram', href: 'https://www.instagram.com/', icon: 'instagram' as const },
+  { label: 'GitHub', href: 'https://github.com/', icon: 'github' as const },
+  { label: 'Telegram', href: 'https://t.me/', icon: 'send' as const },
 ];
 
 export function SiteFooter() {
   return (
     <footer className="site-footer dark-section">
-      <div className="page-width">
-        <div className="footer-main">
-          <div className="footer-brand">
-            <Brand />
-            <p>Programmable Finance for Real-World Assets.</p>
-          </div>
-          <nav className="footer-nav" aria-label="Footer navigation">
-            {footerLinks.map(({ label, href }) => (
-              <a href={href} key={href}>
-                {label}
-              </a>
-            ))}
-          </nav>
-          <div className="socials">
-            {socialLinks.map(({ label, href, icon }) => (
-              <a href={href} aria-label={label} key={label}>
-                <Icon name={icon} size={20} />
-              </a>
-            ))}
-          </div>
+      <span className="footer-watermark" aria-hidden="true">
+        yuice
+      </span>
+      <div className="page-width footer-grid">
+        <div className="footer-brand">
+          <Brand />
+          <p>Programmable Finance for Real-World Assets.</p>
         </div>
-        <div className="footer-bottom">
-          <span className="footer-copyright">© {new Date().getFullYear()} Yuice Labs. All rights reserved.</span>
-          <div>
+
+        <address className="footer-contact">
+          <span>
+            <Icon name="pin" size={18} />
+            <span>
+              123 Innovation Drive
+              <br />
+              New York, NY 10001, USA
+            </span>
+          </span>
+          <a href="mailto:hello@yuice-labs.com">
+            <Icon name="mail" size={18} />
+            hello@yuice-labs.com
+          </a>
+        </address>
+
+        <div className="socials">
+          {socialLinks.map(({ label, href, icon }) => (
+            <a href={href} aria-label={label} key={label} target="_blank" rel="noreferrer">
+              <Icon name={icon} size={22} />
+            </a>
+          ))}
+        </div>
+
+        <div className="footer-legal">
+          <nav aria-label="Legal">
             <a href="/#contact">Privacy Policy</a>
             <a href="/#contact">Terms of Use</a>
-          </div>
+          </nav>
+          <small>© {new Date().getFullYear()} Yuice Labs. All rights reserved.</small>
         </div>
       </div>
     </footer>

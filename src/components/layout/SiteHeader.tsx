@@ -11,7 +11,8 @@ const navigationLinks = [
   { label: 'How it works', href: '/#how-it-works' },
   { label: 'Operation', href: '/#ai-operations' },
   { label: 'Trust', href: '/#trust' },
-  // { label: 'Careers', href: '/careers' },
+  { label: 'Careers', href: '/careers' },
+  { label: 'About', href: '/about' },
 ];
 
 export function SiteHeader() {
