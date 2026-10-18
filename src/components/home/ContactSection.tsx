@@ -10,7 +10,7 @@ const contactTypes = [
 
 export function ContactSection() {
   return (
-    <section className="contact light-section" id="contact">
+    <section className="contact dark-section" id="contact">
       <div className="page-width contact-grid">
         <div className="contact-copy">
           <SectionLabel>Get in touch</SectionLabel>

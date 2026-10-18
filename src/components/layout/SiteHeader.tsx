@@ -1,6 +1,9 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Brand } from '../ui/Brand';
 import { Icon } from '../ui/Icon';
+
+/** Scroll distance (px) after which the header gets its blurred background. */
+const SCROLLED_AFTER = 8;
 
 const navigationLinks = [
   { label: 'Challenges', href: '/#challenges' },
@@ -13,13 +16,24 @@ const navigationLinks = [
 
 export function SiteHeader() {
   const [menuOpen, setMenuOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(() => typeof window !== 'undefined' && window.scrollY > SCROLLED_AFTER);
+
+  // Transparent over the top of the page; frosted once the page scrolls under it.
+  useEffect(() => {
+    function onScroll() {
+      setScrolled(window.scrollY > SCROLLED_AFTER);
+    }
+    onScroll();
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
 
   function closeMenu() {
     setMenuOpen(false);
   }
 
   return (
-    <header className="site-header">
+    <header className={scrolled || menuOpen ? 'site-header is-scrolled' : 'site-header'}>
       <div className="page-width nav-wrap">
         <Brand />
         <button

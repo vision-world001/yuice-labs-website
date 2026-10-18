@@ -6,6 +6,7 @@ export type IconName =
   | 'network'
   | 'nodes'
   | 'building'
+  | 'bolt'
   | 'brain'
   | 'wallet'
   | 'check'
@@ -68,6 +69,7 @@ const iconPaths: Record<IconName, ReactNode> = {
       <path d="M8 10h.01M12 10h.01M16 10h.01" />
     </>
   ),
+  bolt: <path d="M13 2 4 14h7l-1 8 9-12h-7l1-8Z" />,
   brain: (
     <>
       <path d="M12 18V5a3 3 0 0 0-5.7-1.3 4 4 0 0 0-1.4 7.7A4 4 0 0 0 8 19.9" />

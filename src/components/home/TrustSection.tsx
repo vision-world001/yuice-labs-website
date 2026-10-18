@@ -2,20 +2,14 @@ import { Fragment } from 'react';
 import { trustPrinciples } from '../../data/homePage';
 import { Icon } from '../ui/Icon';
 import { SectionLabel } from '../ui/SectionLabel';
+import { TrustShield } from './TrustShield';
 
 export function TrustSection() {
   return (
     <section className="trust dark-section" id="trust">
       <div className="page-width trust-grid">
         <div className="trust-visual">
-          <img
-            className="trust-shield-art"
-            src="/trust-shield.webp"
-            width={555}
-            height={340}
-            loading="lazy"
-            alt=""
-          />
+          <TrustShield />
         </div>
         <div className="trust-copy">
           <SectionLabel>Trust by design</SectionLabel>
