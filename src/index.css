@@ -496,6 +496,21 @@ h3 { margin-bottom: var(--space-xs); font-size: var(--fs-subtitle); line-height:
 .apply-panel { display: grid; gap: var(--space-md); padding: var(--space-lg); border-radius: 18px; color: var(--ink); background: var(--pale); }
 .apply-panel .contact-form { padding: 0; border: 0; background: transparent; box-shadow: none; }
 .field-optional { color: #8e9aa3; font-size: 13px; font-weight: 400; }
+/* CV upload: a dashed drop zone, then a file row once something is chosen */
+.cv-field { display: grid; gap: var(--space-2xs); }
+.cv-label { color: #33424f; font-size: 15px; font-weight: 500; }.cv-label em { color: #2fbf98; font-style: normal; }
+.cv-input { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+.cv-drop { display: grid; justify-items: center; gap: 6px; padding: var(--space-md); border: 1.5px dashed #b9cbd4; border-radius: 12px; color: #4b5b68; background: #fff; font-size: 15px; text-align: center; cursor: pointer; transition: border-color .2s ease, background-color .2s ease, box-shadow .2s ease; }
+.cv-drop b { color: #1f8a6f; font-weight: 650; }.cv-drop small { color: #8e9aa3; font-size: 13px; }
+.cv-drop:hover, .cv-drop.is-dragging { border-color: #5acbad; background: #f2fcf8; }
+.cv-input:focus-visible + .cv-drop, .cv-input:focus-visible + .cv-file { border-color: #5acbad; box-shadow: 0 0 0 3px rgba(90, 203, 173, .2); }
+.cv-drop-icon, .cv-file-icon { display: grid; flex: 0 0 auto; width: 44px; height: 44px; place-items: center; border-radius: 50%; color: #1f8a6f; background: #e3f8f1; }
+.cv-file { display: flex; align-items: center; gap: var(--space-sm); padding: 12px 12px 12px 14px; border: 1px solid #dde5ea; border-radius: 12px; background: #fff; }
+.cv-file-text { display: grid; flex: 1; min-width: 0; gap: 2px; }.cv-file-text b { overflow: hidden; color: #1d2e3b; font-size: 15px; font-weight: 600; white-space: nowrap; text-overflow: ellipsis; }.cv-file-text small { color: #8e9aa3; font-size: 13px; }
+.contact-form .cv-replace { flex: 0 0 auto; color: #1f8a6f; font-size: 14px; font-weight: 600; cursor: pointer; }.cv-replace:hover { text-decoration: underline; }
+.cv-remove { display: grid; flex: 0 0 auto; width: 34px; height: 34px; place-items: center; border: 0; border-radius: 50%; color: #667582; background: transparent; font-size: 20px; line-height: 1; cursor: pointer; }.cv-remove:hover { color: #c92a2f; background: #fff1f1; }
+.cv-drop.is-invalid, .cv-file.is-invalid { border-color: #e5484d; background: #fff8f8; }
+.apply-fields:disabled .cv-drop, .apply-fields:disabled .cv-file { opacity: .6; cursor: not-allowed; pointer-events: none; }
 .apply-fields { display: grid; gap: var(--space-md); min-width: 0; margin: 0; padding: 0; border: 0; }
 .apply-fields:disabled input, .apply-fields:disabled select, .apply-fields:disabled textarea { opacity: .6; cursor: not-allowed; }
 .apply-fields:disabled .form-submit { cursor: progress; transform: none; }

@@ -2,24 +2,33 @@ import { useEffect, useImperativeHandle, useRef, useState, type ChangeEvent, typ
 import { roles } from '../../data/careersPage';
 import { Icon } from '../ui/Icon';
 import {
+  CV_ACCEPT,
   NOTE_MAX,
-  countries,
   formatLinkedin,
   formatPhone,
+  validateCv,
   validateField,
   type FieldName,
   type FormValues,
 } from './applicationValidation';
 
-type FormErrors = Partial<Record<FieldName, string>>;
+/** Text fields plus the CV upload, which is held as a File rather than a string. */
+type ErrorKey = FieldName | 'cv';
+type FormErrors = Partial<Record<ErrorKey, string>>;
 
-const FIELD_ORDER: FieldName[] = ['name', 'email', 'country', 'phone', 'city', 'linkedin', 'role', 'note'];
+const FIELD_ORDER: FieldName[] = ['name', 'email', 'phone', 'linkedin', 'role', 'note'];
+/** Order in which problems are reported, so the first one on screen gets focus. */
+const ERROR_ORDER: ErrorKey[] = ['name', 'email', 'phone', 'linkedin', 'cv', 'role', 'note'];
 /** How long the (simulated) submission takes before the form closes. */
 const SUBMIT_DELAY_MS = 3500;
 /** How long the thank-you notification stays on screen. */
 const NOTICE_MS = 6000;
 
-const EMPTY_VALUES: FormValues = { name: '', email: '', linkedin: '', phone: '', city: '', country: '', role: '', note: '' };
+const EMPTY_VALUES: FormValues = { name: '', email: '', linkedin: '', phone: '', role: '', note: '' };
+
+function formatFileSize(bytes: number) {
+  return bytes < 1024 * 1024 ? `${Math.max(1, Math.round(bytes / 1024))} KB` : `${(bytes / 1024 / 1024).toFixed(1)} MB`;
+}
 
 export interface ApplicationFormHandle {
   /** Opens the dialog with the role field pre-filled (from a role's "Apply" button). */
@@ -33,6 +42,9 @@ interface ApplicationFormProps {
 export function ApplicationForm({ ref }: ApplicationFormProps) {
   const dialogRef = useRef<HTMLDialogElement>(null);
   const formRef = useRef<HTMLFormElement>(null);
+  const cvInputRef = useRef<HTMLInputElement>(null);
+  const [cvFile, setCvFile] = useState<File | null>(null);
+  const [dragging, setDragging] = useState(false);
   const [values, setStateValues] = useState<FormValues>(EMPTY_VALUES);
   // Latest values, so quick successive changes (autofill, the role pre-fill) never build on a stale copy.
   const latestValues = useRef(values);
@@ -72,8 +84,6 @@ export function ApplicationForm({ ref }: ApplicationFormProps) {
     setErrors((current) => {
       const updated = { ...current };
       if (touched[field]) updated[field] = validateField(field, next);
-      // The phone number is checked against the chosen country, so re-check it when the country changes.
-      if (field === 'country' && touched.phone) updated.phone = validateField('phone', next);
       return updated;
     });
   }
@@ -83,11 +93,23 @@ export function ApplicationForm({ ref }: ApplicationFormProps) {
     const current = latestValues.current;
     let next = current;
     // Tidy valid entries into a standard form once the person leaves the field.
-    if (field === 'phone') next = { ...current, phone: formatPhone(current.phone, current.country) };
+    if (field === 'phone') next = { ...current, phone: formatPhone(current.phone) };
     if (field === 'linkedin') next = { ...current, linkedin: formatLinkedin(current.linkedin) };
     if (next !== current) setValues(next);
     setTouched((current) => ({ ...current, [field]: true }));
     setErrors((current) => ({ ...current, [field]: validateField(field, next) }));
+  }
+
+  /** Takes a chosen or dropped file and checks it straight away. */
+  function chooseCv(file: File | null) {
+    setCvFile(file);
+    setErrors((current) => ({ ...current, cv: file ? validateCv(file) : undefined }));
+  }
+
+  function removeCv() {
+    chooseCv(null);
+    if (cvInputRef.current) cvInputRef.current.value = '';
+    cvInputRef.current?.focus();
   }
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
@@ -97,10 +119,12 @@ export function ApplicationForm({ ref }: ApplicationFormProps) {
       const error = validateField(field, latestValues.current);
       if (error) nextErrors[field] = error;
     }
+    const cvError = validateCv(cvFile);
+    if (cvError) nextErrors.cv = cvError;
     setErrors(nextErrors);
     setTouched(Object.fromEntries(FIELD_ORDER.map((field) => [field, true])));
 
-    const firstInvalid = FIELD_ORDER.find((field) => nextErrors[field]);
+    const firstInvalid = ERROR_ORDER.find((field) => nextErrors[field]);
     if (firstInvalid) {
       formRef.current?.querySelector<HTMLElement>(`[name="${firstInvalid}"]`)?.focus();
       return;
@@ -112,6 +136,8 @@ export function ApplicationForm({ ref }: ApplicationFormProps) {
       // Clear the form, close it, then thank the applicant.
       setSubmitting(false);
       setValues(EMPTY_VALUES);
+      setCvFile(null);
+      if (cvInputRef.current) cvInputRef.current.value = '';
       setTouched({});
       setErrors({});
       dialogRef.current?.close();
@@ -146,7 +172,7 @@ export function ApplicationForm({ ref }: ApplicationFormProps) {
     };
   }
 
-  function errorText(field: FieldName) {
+  function errorText(field: ErrorKey) {
     const error = errors[field];
     return error ? (
       <small className="field-error" id={`apply-${field}-error`}>
@@ -164,7 +190,6 @@ export function ApplicationForm({ ref }: ApplicationFormProps) {
   }
 
   const noteLength = values.note.trim().length;
-  const selectedCountry = countries.find(({ code }) => code === values.country);
 
   return (
     <>
@@ -217,20 +242,6 @@ export function ApplicationForm({ ref }: ApplicationFormProps) {
               </div>
               <div className="form-row">
                 <label>
-                  {label('Country')}
-                  <select {...fieldProps('country')} required autoComplete="country">
-                    <option value="" disabled>
-                      Select your country
-                    </option>
-                    {countries.map(({ code, name, dial }) => (
-                      <option value={code} key={code}>
-                        {name} ({dial})
-                      </option>
-                    ))}
-                  </select>
-                  {errorText('country')}
-                </label>
-                <label>
                   {label('Phone number')}
                   <input
                     {...fieldProps('phone')}
@@ -238,16 +249,9 @@ export function ApplicationForm({ ref }: ApplicationFormProps) {
                     type="tel"
                     inputMode="tel"
                     autoComplete="tel"
-                    placeholder={selectedCountry ? `${selectedCountry.dial} …` : '+1 415 555 0132'}
+                    placeholder="+1 415 555 0132"
                   />
                   {errorText('phone')}
-                </label>
-              </div>
-              <div className="form-row">
-                <label>
-                  {label('City')}
-                  <input {...fieldProps('city')} required autoComplete="address-level2" placeholder="e.g. Lisbon" />
-                  {errorText('city')}
                 </label>
                 <label>
                   {label('LinkedIn profile')}
@@ -261,6 +265,65 @@ export function ApplicationForm({ ref }: ApplicationFormProps) {
                   />
                   {errorText('linkedin')}
                 </label>
+              </div>
+              <div className="cv-field">
+                <span className="cv-label" id="apply-cv-label">
+                  {label('Upload CV')}
+                </span>
+                {/* Visually hidden but focusable; the drop zone below is its label */}
+                <input
+                  ref={cvInputRef}
+                  className="cv-input"
+                  id="apply-cv"
+                  name="cv"
+                  type="file"
+                  accept={CV_ACCEPT}
+                  aria-labelledby="apply-cv-label"
+                  aria-invalid={errors.cv ? true : undefined}
+                  aria-describedby={errors.cv ? 'apply-cv-error' : 'apply-cv-hint'}
+                  onChange={(event) => chooseCv(event.target.files?.[0] ?? null)}
+                />
+                {cvFile ? (
+                  <div className={errors.cv ? 'cv-file is-invalid' : 'cv-file'}>
+                    <span className="cv-file-icon" aria-hidden="true">
+                      <Icon name="file" size={22} />
+                    </span>
+                    <span className="cv-file-text">
+                      <b>{cvFile.name}</b>
+                      <small>{formatFileSize(cvFile.size)}</small>
+                    </span>
+                    <label className="cv-replace" htmlFor="apply-cv">
+                      Replace
+                    </label>
+                    <button type="button" className="cv-remove" aria-label={`Remove ${cvFile.name}`} onClick={removeCv}>
+                      <span aria-hidden="true">×</span>
+                    </button>
+                  </div>
+                ) : (
+                  <label
+                    className={['cv-drop', dragging && 'is-dragging', errors.cv && 'is-invalid'].filter(Boolean).join(' ')}
+                    htmlFor="apply-cv"
+                    onDragOver={(event) => {
+                      event.preventDefault();
+                      setDragging(true);
+                    }}
+                    onDragLeave={() => setDragging(false)}
+                    onDrop={(event) => {
+                      event.preventDefault();
+                      setDragging(false);
+                      chooseCv(event.dataTransfer.files[0] ?? null);
+                    }}
+                  >
+                    <span className="cv-drop-icon" aria-hidden="true">
+                      <Icon name="file" size={22} />
+                    </span>
+                    <span>
+                      <b>Click to upload</b> or drag and drop
+                    </span>
+                    <small id="apply-cv-hint">PDF, DOC, or DOCX · up to 5 MB</small>
+                  </label>
+                )}
+                {errorText('cv')}
               </div>
               <label>
                 {label('Role')}

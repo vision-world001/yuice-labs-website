@@ -1,18 +1,21 @@
-import { getCountries, getCountryCallingCode, parsePhoneNumberFromString, type CountryCode } from 'libphonenumber-js';
+import { parsePhoneNumberFromString } from 'libphonenumber-js';
 
-export type FieldName = 'name' | 'email' | 'linkedin' | 'phone' | 'city' | 'country' | 'role' | 'note';
+export type FieldName = 'name' | 'email' | 'linkedin' | 'phone' | 'role' | 'note';
 export type FormValues = Record<FieldName, string>;
 
 export const NOTE_MAX = 1500;
 
-/** Every country the phone library knows, with its English name, sorted by name. */
-const regionNames = new Intl.DisplayNames(['en'], { type: 'region' });
-export const countries: Array<{ code: CountryCode; name: string; dial: string }> = getCountries()
-  .map((code) => ({ code, name: regionNames.of(code) ?? code, dial: `+${getCountryCallingCode(code)}` }))
-  .sort((a, b) => a.name.localeCompare(b.name));
+/** CV upload rules. */
+export const CV_MAX_BYTES = 5 * 1024 * 1024;
+export const CV_EXTENSIONS = ['.pdf', '.doc', '.docx'];
+export const CV_ACCEPT = [
+  ...CV_EXTENSIONS,
+  'application/pdf',
+  'application/msword',
+  'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+].join(',');
 
 const NAME_PATTERN = /^[\p{L}][\p{L}\p{M} '.-]*[\p{L}.]$/u;
-const CITY_PATTERN = /^[\p{L}][\p{L}\p{M} '.,()-]*[\p{L}.)]$/u;
 const EMAIL_LOCAL = /^[A-Za-z0-9!#$%&'*+/=?^_`{|}~-]+(\.[A-Za-z0-9!#$%&'*+/=?^_`{|}~-]+)*$/;
 const EMAIL_LABEL = /^[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?$/;
 const LINKEDIN_SLUG = /^[\p{L}\p{N}_-][\p{L}\p{N}_%-]{1,98}[\p{L}\p{N}_-]$/u;
@@ -79,20 +82,22 @@ function linkedinError(value: string): string | undefined {
   return undefined;
 }
 
-function phoneError(value: string, country: string): string | undefined {
+function phoneError(value: string): string | undefined {
   if (!value) return 'Please enter your phone number.';
   if (/[^\d\s()+.-]/.test(value)) return 'Use digits, spaces, and + ( ) - only.';
-  const defaultCountry = country ? (country as CountryCode) : undefined;
-  if (!value.startsWith('+') && !defaultCountry) {
-    return 'Start with your country code (like +1), or choose your country first.';
-  }
-  const phone = parsePhoneNumberFromString(value, defaultCountry);
-  if (!phone || !phone.isValid()) {
-    const where = countries.find((item) => item.code === defaultCountry)?.name;
-    return where && !value.startsWith('+')
-      ? `Enter a valid phone number for ${where}.`
-      : 'Enter a valid phone number, including the country code.';
-  }
+  if (!value.startsWith('+')) return 'Start with your country code, like +1 or +44.';
+  const phone = parsePhoneNumberFromString(value);
+  if (!phone || !phone.isValid()) return 'Enter a valid phone number, including the country code.';
+  return undefined;
+}
+
+/** Checks the uploaded CV: required, PDF or Word, not empty, and no larger than 5 MB. */
+export function validateCv(file: File | null): string | undefined {
+  if (!file) return 'Please upload your CV.';
+  const name = file.name.toLowerCase();
+  if (!CV_EXTENSIONS.some((extension) => name.endsWith(extension))) return 'Upload your CV as a PDF, DOC, or DOCX file.';
+  if (file.size === 0) return 'This file is empty. Please choose another one.';
+  if (file.size > CV_MAX_BYTES) return 'Your CV must be 5 MB or smaller.';
   return undefined;
 }
 
@@ -112,16 +117,7 @@ export function validateField(field: FieldName, values: FormValues): string | un
     case 'linkedin':
       return linkedinError(value);
     case 'phone':
-      return phoneError(value, values.country);
-    case 'city':
-      if (!value) return 'Please enter your city.';
-      if (value.length < 2 || value.length > 60) return 'City must be between 2 and 60 characters.';
-      if (!CITY_PATTERN.test(value)) return 'Enter a real city name, using letters only.';
-      return undefined;
-    case 'country':
-      if (!value) return 'Please choose your country.';
-      if (!countries.some((item) => item.code === value)) return 'Please choose a country from the list.';
-      return undefined;
+      return phoneError(value);
     case 'role':
       if (!value) return 'Please choose the role you’re applying for.';
       return undefined;
@@ -132,8 +128,8 @@ export function validateField(field: FieldName, values: FormValues): string | un
 }
 
 /** Formats a valid phone number in international form (e.g. +44 20 7946 0958); leaves anything else as typed. */
-export function formatPhone(value: string, country: string) {
-  const phone = parsePhoneNumberFromString(value.trim(), country ? (country as CountryCode) : undefined);
+export function formatPhone(value: string) {
+  const phone = parsePhoneNumberFromString(value.trim());
   return phone?.isValid() ? phone.formatInternational() : value;
 }
 
