@@ -56,15 +56,15 @@ export interface Office {
   lat: number;
   lon: number;
   /** Which side of the pin its map label sits on. */
-  labelSide: 'left' | 'right' | 'top';
+  labelSide: 'left' | 'right' | 'top' | 'bottom';
 }
 
 export const offices: Office[] = [
   { city: 'New York', country: 'USA', lat: 40.7, lon: -74, labelSide: 'left' },
-  { city: 'Singapore', country: 'SG', lat: 1.35, lon: 103.8, labelSide: 'right' },
-  { city: 'Hong Kong', country: 'HK', lat: 22.3, lon: 114.2, labelSide: 'right' },
+  { city: 'Singapore', country: 'SG', lat: 1.35, lon: 103.8, labelSide: 'left' },
+  { city: 'Hong Kong', country: 'HK', lat: 22.3, lon: 114.2, labelSide: 'top' },
   { city: 'Germany', country: 'DE', lat: 52.5, lon: 13.4, labelSide: 'top' },
-  { city: 'United Kingdom', country: 'UK', lat: 51.5, lon: -0.1, labelSide: 'left' },
+  { city: 'United Kingdom', country: 'UK', lat: 51.5, lon: -0.1, labelSide: 'bottom' },
 ];
 
 export const cultureValues: Array<{ icon: IconName; title: string; body: string }> = [

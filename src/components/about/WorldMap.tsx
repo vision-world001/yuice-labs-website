@@ -1,11 +1,11 @@
+import { useId, useMemo } from 'react';
 import type { Office } from '../../data/aboutPage';
-import { Icon } from '../ui/Icon';
 
-/** Map bounds in degrees (equirectangular), cropped to where land is. */
-const LON_MIN = -170;
-const LON_MAX = 180;
-const LAT_MAX = 80;
-const LAT_MIN = -58;
+/** Map bounds in degrees (equirectangular), cropped to the inhabited world between the Americas and Australia. */
+const LON_MIN = -135;
+const LON_MAX = 158;
+const LAT_MAX = 74;
+const LAT_MIN = -46;
 /** Viewbox units per degree, and degrees between dots. */
 const SCALE = 4;
 const STEP = 2.5;
@@ -59,58 +59,135 @@ function noise(seed: number) {
   return value - Math.floor(value);
 }
 
-const dots: Array<{ x: number; y: number; opacity: string }> = [];
-for (let lat = LAT_MAX - STEP / 2; lat > LAT_MIN; lat -= STEP) {
-  for (let lon = LON_MIN + STEP / 2; lon < LON_MAX; lon += STEP) {
-    if (!isLand(lat, lon)) continue;
-    const { x, y } = project(lat, lon);
-    dots.push({ x, y, opacity: (0.3 + 0.55 * noise(x * 7 + y)).toFixed(2) });
+/** Degrees from an office within which land dots light up, like city glow seen from orbit. */
+const GLOW_RADIUS = 22;
+
+/** Land dots, brighter and slightly larger the closer they are to an office. */
+function buildDots(offices: Office[]) {
+  const dots: Array<{ x: number; y: number; r: string; opacity: string }> = [];
+  for (let lat = LAT_MAX - STEP / 2; lat > LAT_MIN; lat -= STEP) {
+    for (let lon = LON_MIN + STEP / 2; lon < LON_MAX; lon += STEP) {
+      if (!isLand(lat, lon)) continue;
+      const nearest = Math.min(...offices.map((office) => Math.hypot(office.lat - lat, office.lon - lon)));
+      const glow = Math.max(0, 1 - nearest / GLOW_RADIUS);
+      const { x, y } = project(lat, lon);
+      dots.push({
+        x,
+        y,
+        r: (2.6 + glow * 1.2).toFixed(2),
+        opacity: Math.min(1, 0.3 + 0.35 * noise(x * 7 + y) + glow * 0.55).toFixed(2),
+      });
+    }
   }
+  return dots;
 }
 
 /** A gentle arc between two offices, bowed upward like a flight path. */
 function arcPath(from: Office, to: Office) {
   const a = project(from.lat, from.lon);
   const b = project(to.lat, to.lon);
-  const lift = Math.hypot(b.x - a.x, b.y - a.y) * 0.25;
+  const lift = Math.hypot(b.x - a.x, b.y - a.y) * 0.3;
   return `M${a.x} ${a.y} Q${(a.x + b.x) / 2} ${Math.min(a.y, b.y) - lift} ${b.x} ${b.y}`;
 }
 
 interface WorldMapProps {
   offices: Office[];
+  /** City to highlight, e.g. while its row in the office list is hovered. */
+  activeCity?: string | null;
+  onActiveCityChange?: (city: string | null) => void;
 }
 
-/** Dotted world map with a glowing pin and label for each office, linked by arcs. */
-export function WorldMap({ offices }: WorldMapProps) {
+/**
+ * Dotted world map: land glows around each office, flight arcs link the offices with light
+ * travelling along them, and each office has a pulsing beacon with a label.
+ */
+export function WorldMap({ offices, activeCity = null, onActiveCityChange }: WorldMapProps) {
+  const id = useId();
+  const dots = useMemo(() => buildDots(offices), [offices]);
   // Chain the offices west to east so the arcs read as one route around the world.
-  const route = [...offices].sort((a, b) => a.lon - b.lon);
+  const route = useMemo(() => [...offices].sort((a, b) => a.lon - b.lon), [offices]);
+  const arcs = route.slice(1).map((office, index) => ({ key: office.city, d: arcPath(route[index], office) }));
 
   return (
-    <div className="world-map">
+    <div className={activeCity ? 'world-map has-active' : 'world-map'}>
       <svg viewBox={`0 0 ${WIDTH} ${HEIGHT}`} aria-hidden="true">
-        <g className="world-map-land">
-          {dots.map(({ x, y, opacity }) => (
-            <circle cx={x} cy={y} r="3" fillOpacity={opacity} key={`${x}-${y}`} />
+        <defs>
+          <radialGradient id={`${id}-halo`}>
+            <stop offset="0" stopColor="#64e5bf" stopOpacity=".7" />
+            <stop offset=".45" stopColor="#3fb8c9" stopOpacity=".25" />
+            <stop offset="1" stopColor="#3fb8c9" stopOpacity="0" />
+          </radialGradient>
+          <linearGradient id={`${id}-arc`} x1="0" x2="1" y1="0" y2="0">
+            <stop offset="0" stopColor="#a4ffe7" />
+            <stop offset=".5" stopColor="#58e2dc" />
+            <stop offset="1" stopColor="#72a7ff" />
+          </linearGradient>
+          <filter id={`${id}-blur`} x="-20%" y="-50%" width="140%" height="200%">
+            <feGaussianBlur stdDeviation="5" />
+          </filter>
+          <filter id={`${id}-spark`} x="-200%" y="-200%" width="500%" height="500%">
+            <feGaussianBlur stdDeviation="3" result="glow" />
+            <feMerge>
+              <feMergeNode in="glow" />
+              <feMergeNode in="SourceGraphic" />
+            </feMerge>
+          </filter>
+        </defs>
+
+        {/* Faint latitude / longitude grid every 30° */}
+        <g className="world-map-graticule">
+          {[60, 30, 0, -30].map((lat) => (
+            <line x1="0" x2={WIDTH} y1={project(lat, 0).y} y2={project(lat, 0).y} key={`lat${lat}`} />
+          ))}
+          {[-150, -120, -90, -60, -30, 0, 30, 60, 90, 120, 150].map((lon) => (
+            <line y1="0" y2={HEIGHT} x1={project(0, lon).x} x2={project(0, lon).x} key={`lon${lon}`} />
           ))}
         </g>
-        <g className="world-map-arcs">
-          {route.slice(1).map((office, index) => (
-            <path d={arcPath(route[index], office)} key={office.city} />
+
+        {offices.map((office) => {
+          const { x, y } = project(office.lat, office.lon);
+          return <circle cx={x} cy={y} r="90" fill={`url(#${id}-halo)`} className="world-map-halo" key={office.city} />;
+        })}
+
+        <g className="world-map-land">
+          {dots.map(({ x, y, r, opacity }) => (
+            <circle cx={x} cy={y} r={r} fillOpacity={opacity} key={`${x}-${y}`} />
+          ))}
+        </g>
+
+        <g className="world-map-arcs" stroke={`url(#${id}-arc)`}>
+          {arcs.map(({ key, d }) => (
+            <g key={key}>
+              <path d={d} className="world-map-arc-glow" filter={`url(#${id}-blur)`} />
+              <path d={d} className="world-map-arc" id={`${id}-${key.replace(/\s/g, '')}`} />
+            </g>
+          ))}
+        </g>
+
+        {/* A spark of light travelling along each arc, staggered so they never move in lockstep */}
+        <g className="world-map-sparks" filter={`url(#${id}-spark)`}>
+          {arcs.map(({ key }, index) => (
+            <circle r="4.5" key={key}>
+              <animateMotion dur="3.6s" begin={`${index * 0.9}s`} repeatCount="indefinite" keyPoints="0;1" keyTimes="0;1" calcMode="spline" keySplines=".45 0 .55 1">
+                <mpath href={`#${id}-${key.replace(/\s/g, '')}`} />
+              </animateMotion>
+            </circle>
           ))}
         </g>
       </svg>
+
       <ul className="world-map-pins" aria-label="Office locations on the map">
         {offices.map((office) => {
           const { x, y } = project(office.lat, office.lon);
           return (
             <li
-              className={`world-map-pin is-${office.labelSide}`}
+              className={`world-map-pin is-${office.labelSide}${activeCity === office.city ? ' is-active' : ''}`}
               style={{ left: `${(x / WIDTH) * 100}%`, top: `${(y / HEIGHT) * 100}%` }}
+              onMouseEnter={() => onActiveCityChange?.(office.city)}
+              onMouseLeave={() => onActiveCityChange?.(null)}
               key={office.city}
             >
-              <span className="world-map-marker" aria-hidden="true">
-                <Icon name="pin" size={22} />
-              </span>
+              <span className="world-map-beacon" aria-hidden="true" />
               <span className="world-map-label">
                 <b>{office.city}</b>
                 <small>{office.country}</small>

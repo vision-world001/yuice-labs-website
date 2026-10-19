@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { Link } from 'react-router';
 import { WorldMap } from '../components/about/WorldMap';
 import { WaveLines } from '../components/careers/WaveLines';
@@ -15,6 +15,8 @@ function initials(name: string) {
 }
 
 export function AboutPage() {
+  const [activeCity, setActiveCity] = useState<string | null>(null);
+
   useEffect(() => {
     document.title = 'About — Yuice Labs';
   }, []);
@@ -102,40 +104,6 @@ export function AboutPage() {
         </div>
       </section>
 
-      <section className="about-presence light-section">
-        <div className="page-width presence-grid">
-          <div className="careers-intro">
-            <SectionLabel>Where we are</SectionLabel>
-            <h2>
-              A global presence.
-              <br />
-              A unified team.
-            </h2>
-            <p>
-              Our team works from key hubs around the world, combining local expertise with global collaboration, to
-              build the future of real-world asset finance.
-            </p>
-            <a className="button button-primary" href="#office-locations">
-              Our Offices <Icon name="arrow" size={16} />
-            </a>
-          </div>
-          <div className="presence-panel dark-section">
-            <WorldMap offices={offices} />
-            <ul className="office-list" id="office-locations">
-              {offices.map(({ city, country }) => (
-                <li key={city}>
-                  <Icon name="pin" size={22} />
-                  <span>
-                    <b>{city}</b>
-                    <small>{country}</small>
-                  </span>
-                </li>
-              ))}
-            </ul>
-          </div>
-        </div>
-      </section>
-
       <section className="about-culture light-section">
         <div className="page-width about-culture-grid">
           <div className="careers-intro">
@@ -165,6 +133,47 @@ export function AboutPage() {
             ))}
           </ul>
           <img className="about-culture-photo" src="/process-buildings.webp" alt="" loading="lazy" />
+        </div>
+      </section>
+
+      <section className="about-presence dark-section">
+        <div className="page-width presence-grid">
+          <div className="careers-intro">
+            <SectionLabel>Where we are</SectionLabel>
+            <h2>
+              A global presence.
+              <br />
+              A unified team.
+            </h2>
+            <p>
+              Our team works from key hubs around the world, combining local expertise with global collaboration, to
+              build the future of real-world asset finance.
+            </p>
+            <a className="button button-primary" href="#office-locations">
+              Our Offices <Icon name="arrow" size={16} />
+            </a>
+          </div>
+          <div className="presence-panel">
+            <WorldMap offices={offices} activeCity={activeCity} onActiveCityChange={setActiveCity} />
+            <ul className="office-list" id="office-locations">
+              {offices.map(({ city, country }) => (
+                <li
+                  className={activeCity === city ? 'is-active' : undefined}
+                  onMouseEnter={() => setActiveCity(city)}
+                  onMouseLeave={() => setActiveCity(null)}
+                  key={city}
+                >
+                  <span className="office-icon">
+                    <Icon name="pin" size={20} />
+                  </span>
+                  <span>
+                    <b>{city}</b>
+                    <small>{country}</small>
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </div>
         </div>
       </section>
 

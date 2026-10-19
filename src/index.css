@@ -673,30 +673,47 @@ html:has(.apply-dialog[open]) { overflow: hidden; }
 .leader-social { display: inline-grid; width: 34px; height: 34px; margin-top: auto; place-items: center; border-radius: 8px; color: #cfdae1; background: rgba(100, 229, 191, .08); transition: color .2s ease, background-color .2s ease; }
 .leader-social:hover { color: #04221e; background: var(--mint); }
 
-.about-presence, .about-culture { overflow: hidden; }
-.presence-grid { display: grid; grid-template-columns: minmax(0, .62fr) minmax(0, 1.38fr); gap: var(--space-xl); align-items: center; }
-/* The map panel runs off the right edge of the page */
-.presence-panel { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: var(--space-md); align-items: center; margin-right: -10vw; padding: var(--space-lg) 10vw var(--space-lg) var(--space-md); border-radius: 18px 0 0 18px; background: radial-gradient(ellipse at 40% 50%, rgba(20, 109, 132, .3), transparent 60%), #031321; }
-.office-list { display: grid; gap: var(--space-md); margin: 0; padding: 0 0 0 var(--space-lg); border-left: 1px solid rgba(169, 196, 210, .18); list-style: none; }
-.office-list li { display: flex; align-items: center; gap: var(--space-xs); color: var(--mint); }
+.about-culture { overflow: hidden; }
+.about-presence { position: relative; background: radial-gradient(ellipse at 70% 45%, rgba(20, 109, 132, .32), transparent 50%), radial-gradient(ellipse at 95% 100%, rgba(92, 73, 192, .16), transparent 40%), #031321; }
+.about-presence .page-width { position: relative; }
+.presence-grid { display: grid; grid-template-columns: minmax(0, .52fr) minmax(0, 1.48fr); gap: var(--space-xl); align-items: center; }
+/* Glass panel with a soft gradient edge holding the map and the office list */
+.presence-panel { position: relative; display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: var(--space-md); align-items: center; padding: var(--space-lg) var(--space-md); border: 1px solid rgba(100, 229, 191, .16); border-radius: 22px; background: linear-gradient(160deg, rgba(14, 44, 60, .55), rgba(4, 18, 31, .75)); box-shadow: 0 30px 80px rgba(0, 0, 0, .45), inset 0 1px 0 rgba(255, 255, 255, .05); }
+.presence-panel::before { position: absolute; inset: -1px; content: ""; pointer-events: none; border-radius: inherit; padding: 1px; background: linear-gradient(120deg, rgba(164, 255, 231, .55), transparent 30%, transparent 70%, rgba(114, 167, 255, .45)); -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor; mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0); }
+.office-list { display: grid; gap: 6px; margin: 0; padding: 0 0 0 var(--space-md); border-left: 1px solid rgba(169, 196, 210, .14); list-style: none; }
+.office-list li { display: flex; align-items: center; gap: var(--space-xs); padding: 7px 12px 7px 7px; border: 1px solid transparent; border-radius: 12px; cursor: default; transition: background-color .2s ease, border-color .2s ease; }
+.office-list li.is-active { border-color: rgba(100, 229, 191, .3); background: rgba(100, 229, 191, .08); }
+.office-icon { display: grid; flex: 0 0 auto; width: 38px; height: 38px; place-items: center; border: 1px solid rgba(100, 229, 191, .35); border-radius: 50%; color: var(--mint); background: rgba(16, 58, 65, .6); transition: box-shadow .2s ease; }
+.office-list li.is-active .office-icon { box-shadow: 0 0 16px rgba(100, 229, 191, .5); }
 .office-list b { display: block; color: #fff; font-size: 15px; font-weight: 600; }.office-list small { color: #9fb1bc; font-size: 13px; }
 
 .world-map { position: relative; }
-.world-map svg { display: block; width: 100%; height: auto; }
-.world-map-land { fill: var(--mint); }
-.world-map-arcs { fill: none; stroke: rgba(100, 229, 191, .6); stroke-width: 1.2; stroke-dasharray: 4 6; animation: arc-flow 3s linear infinite; }
-.world-map-arcs path { vector-effect: non-scaling-stroke; }
-@keyframes arc-flow { to { stroke-dashoffset: -20; } }
+.world-map svg { display: block; width: 100%; height: auto; overflow: visible; }
+.world-map-graticule line { stroke: rgba(150, 188, 212, .07); stroke-width: 1; stroke-dasharray: 2 6; vector-effect: non-scaling-stroke; }
+.world-map-land { fill: #7ff0cf; }
+.world-map-halo { animation: halo-breathe 5s ease-in-out infinite alternate; transform-box: fill-box; transform-origin: center; }
+@keyframes halo-breathe { from { opacity: .7; scale: .9; } to { opacity: 1; scale: 1.08; } }
+.world-map-arcs { fill: none; }
+.world-map-arc { stroke-width: 1.6; stroke-dasharray: 5 7; animation: arc-flow 2.4s linear infinite; vector-effect: non-scaling-stroke; }
+.world-map-arc-glow { stroke-width: 6; opacity: .35; }
+@keyframes arc-flow { to { stroke-dashoffset: -24; } }
+.world-map-sparks { fill: #eafffa; }
 .world-map-pins { position: absolute; inset: 0; margin: 0; padding: 0; list-style: none; }
 .world-map-pin { position: absolute; width: 0; height: 0; }
-.world-map-marker { position: absolute; left: -11px; bottom: -2px; color: var(--mint); filter: drop-shadow(0 0 6px rgba(100, 229, 191, .8)); }
-.world-map-marker::after { position: absolute; left: 50%; bottom: 0; width: 22px; height: 22px; content: ""; translate: -50% 50%; border-radius: 50%; background: radial-gradient(circle, rgba(100, 229, 191, .5), transparent 70%); animation: pin-pulse 2.4s ease-out infinite; }
-@keyframes pin-pulse { from { opacity: 1; scale: .4; } to { opacity: 0; scale: 1.6; } }
-.world-map-label { position: absolute; top: -16px; display: grid; white-space: nowrap; line-height: 1.25; }
-.world-map-label b { color: #fff; font-size: 13px; font-weight: 650; }.world-map-label small { color: #9fb1bc; font-size: 11px; }
+/* Beacon: a bright core with two pulse rings */
+.world-map-beacon { position: absolute; left: -7px; top: -7px; width: 14px; height: 14px; border: 2px solid #eafffa; border-radius: 50%; background: var(--mint); box-shadow: 0 0 0 4px rgba(100, 229, 191, .2), 0 0 18px rgba(100, 229, 191, .9); cursor: pointer; transition: transform .25s ease; }
+.world-map-beacon::before, .world-map-beacon::after { position: absolute; inset: -2px; content: ""; border: 1.5px solid rgba(100, 229, 191, .8); border-radius: 50%; animation: beacon-ring 2.6s ease-out infinite; }
+.world-map-beacon::after { animation-delay: 1.3s; }
+@keyframes beacon-ring { from { opacity: .9; scale: 1; } to { opacity: 0; scale: 3.6; } }
+.world-map-pin.is-active .world-map-beacon { transform: scale(1.35); }
+.world-map-label { position: absolute; top: -17px; display: grid; padding: 5px 10px; border: 1px solid rgba(100, 229, 191, .22); border-radius: 9px; white-space: nowrap; line-height: 1.25; background: rgba(3, 19, 33, .72); -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); box-shadow: 0 8px 20px rgba(0, 0, 0, .35); transition: border-color .2s ease, box-shadow .2s ease, opacity .2s ease; }
+.world-map-label b { color: #fff; font-size: 12px; font-weight: 650; }.world-map-label small { color: #8fe9cd; font-size: 10px; letter-spacing: .06em; }
 .world-map-pin.is-left .world-map-label { right: 16px; text-align: right; }
 .world-map-pin.is-right .world-map-label { left: 16px; }
-.world-map-pin.is-top .world-map-label { top: -58px; left: 0; translate: -50% 0; text-align: center; }
+.world-map-pin.is-top .world-map-label { top: -62px; left: 0; translate: -50% 0; text-align: center; }
+.world-map-pin.is-bottom .world-map-label { top: 16px; left: 0; translate: -50% 0; text-align: center; }
+.world-map.has-active .world-map-pin:not(.is-active) .world-map-label { opacity: .45; }
+.world-map-pin.is-active { z-index: 1; }.world-map-pin.is-active .world-map-label { border-color: rgba(100, 229, 191, .7); box-shadow: 0 0 22px rgba(100, 229, 191, .35); }
 
 .about-culture-grid { display: grid; grid-template-columns: minmax(0, .9fr) minmax(0, 1fr) minmax(0, .9fr); gap: var(--space-xl); align-items: center; }
 .culture-values { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-lg) var(--space-md); margin: 0; padding: 0; list-style: none; }
@@ -713,7 +730,6 @@ html:has(.apply-dialog[open]) { overflow: hidden; }
 @media (max-width: 1340px) {
   .about-team-grid, .presence-grid, .about-culture-grid { grid-template-columns: minmax(0, 1fr); }
   .leader-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-  .presence-panel { margin-right: 0; padding: var(--space-lg); border-radius: 18px; }
   .about-culture-grid { gap: var(--space-lg); }
   .about-culture-photo { width: 100%; height: auto; min-height: 0; aspect-ratio: 16 / 7; margin-right: 0; border-radius: 18px; }
 }
@@ -752,7 +768,8 @@ html { scrollbar-color: #2f7f79 #031321; scrollbar-width: thin; }
 @media (prefers-reduced-motion: reduce) {
   .back-to-top, .back-to-top:hover { transform: none; }.reveal { opacity: 1; transform: none; }
   .leader-card:hover { transform: none; }
-  .world-map-arcs, .world-map-marker::after { animation: none; }
+  .world-map-arc, .world-map-halo, .world-map-beacon::before, .world-map-beacon::after { animation: none; }
+  .world-map-sparks { display: none; }
   .value-card:hover { transform: none; }
   .type-caret { animation: none; }
   .trust-scan, .trust-check { animation: none; }
