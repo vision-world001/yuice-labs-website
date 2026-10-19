@@ -19,30 +19,35 @@ export interface Leader {
 export const leaders: Leader[] = [
   {
     name: 'Alex Carter',
+    photo: '/leader-alex-carter.webp',
     role: 'CEO & Founder',
     bio: 'Serial entrepreneur with 10+ years in blockchain and fintech. Previously built and scaled products at leading Web3 companies.',
     linkedin: 'https://www.linkedin.com/',
   },
   {
     name: 'Emily Zhang',
+    photo: '/leader-emily-zhang.webp',
     role: 'CTO',
     bio: 'Full-stack engineer and blockchain architect. Expert in smart contracts, scalability, and distributed systems.',
     linkedin: 'https://www.linkedin.com/',
   },
   {
     name: 'Daniel Brooks',
+    photo: '/leader-daniel-brooks.webp',
     role: 'CFO',
     bio: 'Finance executive with 12+ years in fintech and digital assets. Focuses on capital strategy, financial operations, and growth.',
     linkedin: 'https://www.linkedin.com/',
   },
   {
     name: 'Sophia Martinez',
+    photo: '/leader-sophia-martinez.webp',
     role: 'Head of Talent',
     bio: 'Senior talent leader with experience in building high-performing teams in Web3, fintech, and tech startups.',
     linkedin: 'https://www.linkedin.com/',
   },
   {
     name: 'Olivia Bennett',
+    photo: '/leader-olivia-bennett.webp',
     role: 'Chief Financial Officer',
     bio: 'Finance and strategy executive with expertise in treasury, financial planning, and risk management in digital assets.',
     linkedin: 'https://www.linkedin.com/',

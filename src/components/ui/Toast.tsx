@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react';
+import { createPortal } from 'react-dom';
 import { Icon } from './Icon';
 
 export interface ToastMessage {
@@ -37,9 +38,12 @@ interface ToastRegionProps {
   onDismiss: () => void;
 }
 
-/** Fixed notification area under the header; announces its toast to screen readers. */
+/**
+ * Fixed notification area under the header; announces its toast to screen readers.
+ * Rendered into <body> so a transformed or blurred ancestor (e.g. a form card) can't trap its fixed position.
+ */
 export function ToastRegion({ toast, onDismiss }: ToastRegionProps) {
-  return (
+  return createPortal(
     <div className="toast-region" role="status" aria-live="polite">
       {toast && (
         <div
@@ -60,6 +64,7 @@ export function ToastRegion({ toast, onDismiss }: ToastRegionProps) {
           <span className="toast-timer" aria-hidden="true" />
         </div>
       )}
-    </div>
+    </div>,
+    document.body,
   );
 }

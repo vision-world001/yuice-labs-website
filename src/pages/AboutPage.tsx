@@ -24,7 +24,7 @@ export function AboutPage() {
   return (
     <>
       <section className="about-hero dark-section">
-        <img className="about-hero-photo" src="/job-culture.webp" alt="" />
+        <img className="about-hero-photo" src="/about-hero.webp" alt="" />
         <div className="page-width about-hero-copy">
           <SectionLabel>Our team</SectionLabel>
           <h1>
@@ -132,7 +132,7 @@ export function AboutPage() {
               </li>
             ))}
           </ul>
-          <img className="about-culture-photo" src="/process-buildings.webp" alt="" loading="lazy" />
+          <img className="about-culture-photo" src="/about-culture.webp" alt="" loading="lazy" />
         </div>
       </section>
 
