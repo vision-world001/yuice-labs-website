@@ -1,0 +1,57 @@
+# Builds the site and uploads it to Hostinger on every push to main.
+# A push alone doesn't update the host: the live site is the compiled dist/ folder, which isn't in git.
+#
+# One-time setup — GitHub repo → Settings → Secrets and variables → Actions → New repository secret:
+#   FTP_SERVER                Hostinger hPanel → Files → FTP Accounts → "FTP IP" / hostname
+#   FTP_USERNAME              same page
+#   FTP_PASSWORD              same page (use "Change FTP password" if you don't know it)
+#   VITE_EMAILJS_SERVICE_ID   same values as your local .env
+#   VITE_EMAILJS_TEMPLATE_ID
+#   VITE_EMAILJS_PUBLIC_KEY
+#   VITE_COMPANY_EMAIL
+name: Deploy to Hostinger
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch: # also allows a manual run from the Actions tab
+
+# Never run two uploads at once; a newer push replaces a waiting one.
+concurrency:
+  group: deploy
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      - name: Type-check
+        run: npx tsc
+
+      - name: Build
+        run: npm run build
+        env:
+          VITE_EMAILJS_SERVICE_ID: ${{ secrets.VITE_EMAILJS_SERVICE_ID }}
+          VITE_EMAILJS_TEMPLATE_ID: ${{ secrets.VITE_EMAILJS_TEMPLATE_ID }}
+          VITE_EMAILJS_PUBLIC_KEY: ${{ secrets.VITE_EMAILJS_PUBLIC_KEY }}
+          VITE_COMPANY_EMAIL: ${{ secrets.VITE_COMPANY_EMAIL }}
+
+      - name: Upload to Hostinger
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ${{ secrets.FTP_SERVER }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          local-dir: ./dist/
+          # The website folder as seen from the FTP account's home. For Hostinger's main FTP account this is
+          # public_html/; if your FTP account already opens inside public_html, change it to ./
+          server-dir: ./public_html/
