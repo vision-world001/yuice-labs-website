@@ -7,7 +7,7 @@ const RING_RADIUS = 22;
 const RING_LENGTH = 2 * Math.PI * RING_RADIUS;
 
 /** Content blocks that fade up into view; the first (hero) section is left alone so it shows instantly. */
-const REVEAL_SELECTOR = 'main > section:not(:first-child) > .page-width > *, main > section:not(:first-child) :is(.value-grid, .feature-grid, .pillar-grid, .step-grid, .sector-list, .challenge-list, .benefit-list, .role-list, .highlight-grid, .perk-grid, .culture-photos) > *';
+const REVEAL_SELECTOR = 'main > section:not(:first-child) > .page-width > *, main > section:not(:first-child) :is(.value-grid, .feature-grid, .pillar-grid, .step-grid, .sector-list, .challenge-list, .benefit-list, .role-list, .highlight-grid, .perk-grid, .culture-photos, .trait-grid, .leader-grid, .culture-values) > *';
 
 /**
  * Site-wide scroll polish: a reading-progress bar, a back-to-top button with a progress ring,

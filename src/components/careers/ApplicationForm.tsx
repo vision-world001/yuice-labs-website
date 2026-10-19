@@ -1,7 +1,8 @@
-import { useEffect, useImperativeHandle, useRef, useState, type ChangeEvent, type FocusEvent, type FormEvent, type Ref } from 'react';
+import { useImperativeHandle, useRef, useState, type ChangeEvent, type FocusEvent, type FormEvent, type Ref } from 'react';
 import { roles } from '../../data/careersPage';
 import { sendCompanyEmail, wait } from '../../lib/companyEmail';
 import { Icon } from '../ui/Icon';
+import { ToastRegion, useToast } from '../ui/Toast';
 import {
   CV_ACCEPT,
   NOTE_MAX,
@@ -22,8 +23,6 @@ const FIELD_ORDER: FieldName[] = ['name', 'email', 'phone', 'linkedin', 'role', 
 const ERROR_ORDER: ErrorKey[] = ['name', 'email', 'phone', 'linkedin', 'cv', 'role', 'note'];
 /** The loading state shows for at least this long, even when the email goes out faster. */
 const SUBMIT_MIN_MS = 3000;
-/** How long the thank-you notification stays on screen. */
-const NOTICE_MS = 6000;
 
 const EMPTY_VALUES: FormValues = { name: '', email: '', linkedin: '', phone: '', role: '', note: '' };
 
@@ -53,10 +52,7 @@ export function ApplicationForm({ ref }: ApplicationFormProps) {
   const [touched, setTouched] = useState<Partial<Record<FieldName, boolean>>>({});
   const [submitting, setSubmitting] = useState(false);
   const [sendError, setSendError] = useState(false);
-  const [notice, setNotice] = useState<string | null>(null);
-  const noticeTimer = useRef<number | undefined>(undefined);
-
-  useEffect(() => () => window.clearTimeout(noticeTimer.current), []);
+  const { toast, showToast, dismissToast } = useToast();
 
   function setValues(next: FormValues) {
     latestValues.current = next;
@@ -156,22 +152,13 @@ export function ApplicationForm({ ref }: ApplicationFormProps) {
     setTouched({});
     setErrors({});
     dialogRef.current?.close();
-    showNotice(
-      roleTitle
+    showToast({
+      tone: 'success',
+      title: 'Application submitted',
+      body: roleTitle
         ? `Thanks for applying for ${roleTitle}! We’ll get back to you within five working days.`
         : 'Thanks for your application! We’ll get back to you within five working days.',
-    );
-  }
-
-  function showNotice(message: string) {
-    window.clearTimeout(noticeTimer.current);
-    setNotice(message);
-    noticeTimer.current = window.setTimeout(() => setNotice(null), NOTICE_MS);
-  }
-
-  function dismissNotice() {
-    window.clearTimeout(noticeTimer.current);
-    setNotice(null);
+    });
   }
 
   function fieldProps(field: FieldName) {
@@ -390,22 +377,7 @@ export function ApplicationForm({ ref }: ApplicationFormProps) {
         </div>
       </dialog>
 
-      <div className="toast-region" role="status" aria-live="polite">
-        {notice && (
-          <div className="toast">
-            <span className="toast-icon" aria-hidden="true">
-              <Icon name="check" size={16} />
-            </span>
-            <p>
-              <b>Application submitted</b>
-              {notice}
-            </p>
-            <button type="button" className="toast-close" aria-label="Dismiss notification" onClick={dismissNotice}>
-              <span aria-hidden="true">×</span>
-            </button>
-          </div>
-        )}
-      </div>
+      <ToastRegion toast={toast} onDismiss={dismissToast} />
     </>
   );
 }

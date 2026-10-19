@@ -1,6 +1,7 @@
 import { useRef, useState, type ChangeEvent, type FocusEvent, type FormEvent } from 'react';
 import { sendCompanyEmail, wait } from '../../lib/companyEmail';
 import { Icon } from '../ui/Icon';
+import { ToastRegion, useToast } from '../ui/Toast';
 
 type FieldName = 'name' | 'email' | 'company' | 'inquiry' | 'message';
 type FormValues = Record<FieldName, string>;
@@ -62,16 +63,13 @@ export function ContactForm() {
   const [values, setValues] = useState<FormValues>(EMPTY_VALUES);
   const [errors, setErrors] = useState<FormErrors>({});
   const [touched, setTouched] = useState<Partial<Record<FieldName, boolean>>>({});
-  const [submitted, setSubmitted] = useState(false);
   const [submitting, setSubmitting] = useState(false);
-  const [sendError, setSendError] = useState(false);
+  const { toast, showToast, dismissToast } = useToast();
 
   function handleChange(event: ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) {
     const field = event.target.name as FieldName;
     const { value } = event.target;
     setValues((current) => ({ ...current, [field]: value }));
-    setSubmitted(false);
-    setSendError(false);
     // Once a field has been visited, keep its message in sync while typing.
     if (touched[field]) setErrors((current) => ({ ...current, [field]: validateField(field, value) }));
   }
@@ -85,7 +83,6 @@ export function ContactForm() {
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (submitting) return;
-    setSendError(false);
     const nextErrors = validateAll(values);
     setErrors(nextErrors);
     setTouched({ name: true, email: true, company: true, inquiry: true, message: true });
@@ -110,13 +107,26 @@ export function ContactForm() {
       ]);
     } catch (error) {
       console.error('Contact message could not be sent', error);
-      setSendError(true);
+      showToast({
+        tone: 'error',
+        title: 'Message not sent',
+        body: (
+          <>
+            Something went wrong on our side. Please try again in a moment, or email us at{' '}
+            <a href="mailto:hello@yuice-labs.com">hello@yuice-labs.com</a>.
+          </>
+        ),
+      });
       return;
     } finally {
       setSubmitting(false);
     }
 
-    setSubmitted(true);
+    showToast({
+      tone: 'success',
+      title: 'Message sent',
+      body: `Thanks for reaching out, ${values.name.trim().split(/\s+/)[0]}. We’ll be in touch soon.`,
+    });
     setValues(EMPTY_VALUES);
     setTouched({});
     setErrors({});
@@ -148,17 +158,6 @@ export function ContactForm() {
 
   return (
     <form className="contact-form" ref={formRef} onSubmit={handleSubmit} noValidate>
-      {submitted && (
-        <div className="form-success" role="status">
-          Thanks for reaching out. We’ll be in touch soon.
-        </div>
-      )}
-      {sendError && (
-        <div className="form-error" role="alert">
-          We couldn’t send your message. Please try again in a moment, or email us at{' '}
-          <a href="mailto:hello@yuice-labs.com">hello@yuice-labs.com</a>.
-        </div>
-      )}
       <div className="form-row">
         <label>
           <span>
@@ -232,6 +231,7 @@ export function ContactForm() {
           </>
         )}
       </button>
+      <ToastRegion toast={toast} onDismiss={dismissToast} />
     </form>
   );
 }
