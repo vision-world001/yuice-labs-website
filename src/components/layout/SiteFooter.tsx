@@ -29,9 +29,9 @@ export function SiteFooter() {
               New York, NY 10001, USA
             </span>
           </span>
-          <a href="mailto:hello@yuice-labs.com">
+          <a href="mailto:hello@yuicelabs.com">
             <Icon name="mail" size={18} />
-            hello@yuice-labs.com
+            hello@yuicelabs.com
           </a>
         </address>
 

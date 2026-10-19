@@ -496,6 +496,9 @@ h3 { margin-bottom: var(--space-xs); font-size: var(--fs-subtitle); line-height:
 .apply-panel { display: grid; gap: var(--space-md); padding: var(--space-lg); border-radius: 18px; color: var(--ink); background: var(--pale); }
 .apply-panel .contact-form { padding: 0; border: 0; background: transparent; box-shadow: none; }
 .field-optional { color: #8e9aa3; font-size: 13px; font-weight: 400; }
+/* Shown when a form could not be delivered */
+.form-error { padding: 12px 16px; border: 1px solid #f3b4b6; border-radius: 10px; color: #8f1d22; background: #fff1f1; font-size: 15px; line-height: 1.5; }.form-error a { color: inherit; font-weight: 600; text-decoration: underline; }
+.form-submit:disabled { cursor: progress; transform: none; }
 /* CV upload: a dashed drop zone, then a file row once something is chosen */
 .cv-field { display: grid; gap: var(--space-2xs); }
 .cv-label { color: #33424f; font-size: 15px; font-weight: 500; }.cv-label em { color: #2fbf98; font-style: normal; }

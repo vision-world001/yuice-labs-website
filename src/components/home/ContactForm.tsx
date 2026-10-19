@@ -1,4 +1,5 @@
 import { useRef, useState, type ChangeEvent, type FocusEvent, type FormEvent } from 'react';
+import { sendCompanyEmail, wait } from '../../lib/companyEmail';
 import { Icon } from '../ui/Icon';
 
 type FieldName = 'name' | 'email' | 'company' | 'inquiry' | 'message';
@@ -9,6 +10,8 @@ const FIELD_ORDER: FieldName[] = ['name', 'email', 'company', 'inquiry', 'messag
 const EMPTY_VALUES: FormValues = { name: '', email: '', company: '', inquiry: '', message: '' };
 const MESSAGE_MAX = 1000;
 const MESSAGE_MIN = 10;
+/** The loading state shows for at least this long, even when the email goes out faster. */
+const SUBMIT_MIN_MS = 1200;
 
 const NAME_PATTERN = /^[\p{L}][\p{L}\p{M} '.-]*$/u;
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
@@ -60,12 +63,15 @@ export function ContactForm() {
   const [errors, setErrors] = useState<FormErrors>({});
   const [touched, setTouched] = useState<Partial<Record<FieldName, boolean>>>({});
   const [submitted, setSubmitted] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [sendError, setSendError] = useState(false);
 
   function handleChange(event: ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) {
     const field = event.target.name as FieldName;
     const { value } = event.target;
     setValues((current) => ({ ...current, [field]: value }));
     setSubmitted(false);
+    setSendError(false);
     // Once a field has been visited, keep its message in sync while typing.
     if (touched[field]) setErrors((current) => ({ ...current, [field]: validateField(field, value) }));
   }
@@ -76,8 +82,10 @@ export function ContactForm() {
     setErrors((current) => ({ ...current, [field]: validateField(field, event.target.value) }));
   }
 
-  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    if (submitting) return;
+    setSendError(false);
     const nextErrors = validateAll(values);
     setErrors(nextErrors);
     setTouched({ name: true, email: true, company: true, inquiry: true, message: true });
@@ -86,6 +94,26 @@ export function ContactForm() {
     if (firstInvalid) {
       formRef.current?.querySelector<HTMLElement>(`[name="${firstInvalid}"]`)?.focus();
       return;
+    }
+
+    setSubmitting(true);
+    try {
+      await Promise.all([
+        sendCompanyEmail('Contact message', {
+          from_name: values.name,
+          from_email: values.email,
+          company: values.company,
+          inquiry: values.inquiry,
+          message: values.message,
+        }),
+        wait(SUBMIT_MIN_MS),
+      ]);
+    } catch (error) {
+      console.error('Contact message could not be sent', error);
+      setSendError(true);
+      return;
+    } finally {
+      setSubmitting(false);
     }
 
     setSubmitted(true);
@@ -123,6 +151,12 @@ export function ContactForm() {
       {submitted && (
         <div className="form-success" role="status">
           Thanks for reaching out. We’ll be in touch soon.
+        </div>
+      )}
+      {sendError && (
+        <div className="form-error" role="alert">
+          We couldn’t send your message. Please try again in a moment, or email us at{' '}
+          <a href="mailto:hello@yuice-labs.com">hello@yuice-labs.com</a>.
         </div>
       )}
       <div className="form-row">
@@ -187,8 +221,16 @@ export function ContactForm() {
           </span>
         </div>
       </div>
-      <button className="button button-primary form-submit" type="submit">
-        Send Message <Icon name="arrow" size={16} />
+      <button className="button button-primary form-submit" type="submit" disabled={submitting} aria-busy={submitting}>
+        {submitting ? (
+          <>
+            <span className="spinner" aria-hidden="true" /> Sending…
+          </>
+        ) : (
+          <>
+            Send Message <Icon name="arrow" size={16} />
+          </>
+        )}
       </button>
     </form>
   );

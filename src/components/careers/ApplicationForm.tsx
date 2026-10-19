@@ -1,5 +1,6 @@
 import { useEffect, useImperativeHandle, useRef, useState, type ChangeEvent, type FocusEvent, type FormEvent, type Ref } from 'react';
 import { roles } from '../../data/careersPage';
+import { sendCompanyEmail, wait } from '../../lib/companyEmail';
 import { Icon } from '../ui/Icon';
 import {
   CV_ACCEPT,
@@ -19,8 +20,8 @@ type FormErrors = Partial<Record<ErrorKey, string>>;
 const FIELD_ORDER: FieldName[] = ['name', 'email', 'phone', 'linkedin', 'role', 'note'];
 /** Order in which problems are reported, so the first one on screen gets focus. */
 const ERROR_ORDER: ErrorKey[] = ['name', 'email', 'phone', 'linkedin', 'cv', 'role', 'note'];
-/** How long the (simulated) submission takes before the form closes. */
-const SUBMIT_DELAY_MS = 3500;
+/** The loading state shows for at least this long, even when the email goes out faster. */
+const SUBMIT_MIN_MS = 3000;
 /** How long the thank-you notification stays on screen. */
 const NOTICE_MS = 6000;
 
@@ -51,17 +52,11 @@ export function ApplicationForm({ ref }: ApplicationFormProps) {
   const [errors, setErrors] = useState<FormErrors>({});
   const [touched, setTouched] = useState<Partial<Record<FieldName, boolean>>>({});
   const [submitting, setSubmitting] = useState(false);
+  const [sendError, setSendError] = useState(false);
   const [notice, setNotice] = useState<string | null>(null);
-  const submitTimer = useRef<number | undefined>(undefined);
   const noticeTimer = useRef<number | undefined>(undefined);
 
-  useEffect(
-    () => () => {
-      window.clearTimeout(submitTimer.current);
-      window.clearTimeout(noticeTimer.current);
-    },
-    [],
-  );
+  useEffect(() => () => window.clearTimeout(noticeTimer.current), []);
 
   function setValues(next: FormValues) {
     latestValues.current = next;
@@ -112,8 +107,9 @@ export function ApplicationForm({ ref }: ApplicationFormProps) {
     cvInputRef.current?.focus();
   }
 
-  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    setSendError(false);
     const nextErrors: FormErrors = {};
     for (const field of FIELD_ORDER) {
       const error = validateField(field, latestValues.current);
@@ -130,23 +126,41 @@ export function ApplicationForm({ ref }: ApplicationFormProps) {
       return;
     }
 
-    const roleTitle = roles.find((role) => role.id === latestValues.current.role)?.title;
+    const submitted = latestValues.current;
+    const roleTitle = roles.find((role) => role.id === submitted.role)?.title;
     setSubmitting(true);
-    submitTimer.current = window.setTimeout(() => {
-      // Clear the form, close it, then thank the applicant.
+    try {
+      await Promise.all([
+        sendCompanyEmail('Job application', {
+          from_name: submitted.name,
+          from_email: submitted.email,
+          phone: submitted.phone,
+          linkedin: submitted.linkedin,
+          role: roleTitle ?? 'General application',
+          message: submitted.note,
+        }),
+        wait(SUBMIT_MIN_MS),
+      ]);
+    } catch (error) {
+      console.error('Job application could not be sent', error);
       setSubmitting(false);
-      setValues(EMPTY_VALUES);
-      setCvFile(null);
-      if (cvInputRef.current) cvInputRef.current.value = '';
-      setTouched({});
-      setErrors({});
-      dialogRef.current?.close();
-      showNotice(
-        roleTitle
-          ? `Thanks for applying for ${roleTitle}! We’ll get back to you within five working days.`
-          : 'Thanks for your application! We’ll get back to you within five working days.',
-      );
-    }, SUBMIT_DELAY_MS);
+      setSendError(true);
+      return;
+    }
+
+    // Clear the form, close it, then thank the applicant.
+    setSubmitting(false);
+    setValues(EMPTY_VALUES);
+    setCvFile(null);
+    if (cvInputRef.current) cvInputRef.current.value = '';
+    setTouched({});
+    setErrors({});
+    dialogRef.current?.close();
+    showNotice(
+      roleTitle
+        ? `Thanks for applying for ${roleTitle}! We’ll get back to you within five working days.`
+        : 'Thanks for your application! We’ll get back to you within five working days.',
+    );
   }
 
   function showNotice(message: string) {
@@ -221,6 +235,12 @@ export function ApplicationForm({ ref }: ApplicationFormProps) {
           </div>
           <form className="contact-form" ref={formRef} onSubmit={handleSubmit} noValidate aria-busy={submitting}>
             <fieldset className="apply-fields" disabled={submitting}>
+              {sendError && (
+                <div className="form-error" role="alert">
+                  We couldn’t send your application. Please try again in a moment, or email us at{' '}
+                  <a href="mailto:hello@yuice-labs.com">hello@yuice-labs.com</a>.
+                </div>
+              )}
               <div className="form-row">
                 <label>
                   {label('Full name')}
