@@ -661,7 +661,7 @@ html:has(.apply-dialog[open]) { overflow: hidden; }
 .leaders-head { display: flex; align-items: flex-end; justify-content: space-between; gap: var(--space-lg); margin-bottom: var(--space-xl); }
 .leaders-head h2 { margin: 0; }
 .leaders-head > p { max-width: 480px; margin: 0; color: #bac6ce; font-size: var(--fs-body); line-height: var(--lh-body); }
-.leader-grid { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: var(--space-md); margin: 0; padding: 0; list-style: none; }
+.leader-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: var(--space-md); margin: 0; padding: 0; list-style: none; }
 .leader-card { display: flex; flex-direction: column; overflow: hidden; border: 1px solid rgba(134, 173, 193, .22); border-radius: 14px; background: rgba(8, 26, 42, .7); transition: transform .25s ease, border-color .25s ease; }
 .leader-card:hover { transform: translateY(-4px); border-color: rgba(100, 229, 191, .45); }
 .leader-photo { position: relative; overflow: hidden; display: grid; aspect-ratio: 4 / 3; place-items: center; background: radial-gradient(circle at 50% 40%, rgba(100, 229, 191, .2), transparent 60%), linear-gradient(160deg, #0d2b3b, #061726); }
@@ -736,7 +736,7 @@ html:has(.apply-dialog[open]) { overflow: hidden; }
 
 @media (max-width: 1340px) {
   .about-team-grid, .presence-grid, .about-culture-grid { grid-template-columns: minmax(0, 1fr); }
-  .leader-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .leader-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .about-culture-grid { gap: var(--space-lg); }
   .about-culture-photo { width: 100%; height: auto; min-height: 0; aspect-ratio: 16 / 7; margin-right: 0; border-radius: 18px; -webkit-mask-image: none; mask-image: none; }
 }

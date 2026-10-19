@@ -113,7 +113,7 @@ export function ContactForm() {
         body: (
           <>
             Something went wrong on our side. Please try again in a moment, or email us at{' '}
-            <a href="mailto:hello@yuice-labs.com">hello@yuice-labs.com</a>.
+            <a href="mailto:hello@yuicelabs.com">hello@yuicelabs.com</a>.
           </>
         ),
       });
