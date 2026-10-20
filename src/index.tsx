@@ -1,6 +1,7 @@
 import ReactDOM from 'react-dom/client';
 import { createBrowserRouter, Navigate, RouterProvider } from 'react-router';
 import { SiteLayout } from './layouts/SiteLayout';
+import { ABOUT_PAGE_ENABLED } from './lib/features';
 import { AboutPage } from './pages/AboutPage';
 import { CareersPage } from './pages/CareersPage';
 import { HomePage } from './pages/HomePage';
@@ -19,7 +20,7 @@ const router = createBrowserRouter([
     element: <SiteLayout />,
     children: [
       { index: true, element: <HomePage /> },
-      { path: 'about', element: <AboutPage /> },
+      ...(ABOUT_PAGE_ENABLED ? [{ path: 'about', element: <AboutPage /> }] : []),
       { path: 'careers', element: <CareersPage /> },
       { path: 'careers/:roleId', element: <JobRoute /> },
       // Unknown addresses fall back to the home page.

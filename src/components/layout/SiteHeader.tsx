@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link, NavLink } from 'react-router';
+import { ABOUT_PAGE_ENABLED } from '../../lib/features';
 import { Brand } from '../ui/Brand';
 import { Icon } from '../ui/Icon';
 
@@ -57,7 +58,18 @@ export function SiteHeader() {
         >
           {navigationLinks.map(({ label, href }) =>
             // Page links get the active underline; links to home-page sections are plain.
-            href.includes('#') ? (
+            href === '/about' && !ABOUT_PAGE_ENABLED ? (
+              <a
+                href={href}
+                key={href}
+                onClick={(event) => {
+                  event.preventDefault();
+                  closeMenu();
+                }}
+              >
+                {label}
+              </a>
+            ) : href.includes('#') ? (
               <Link to={href} key={href} onClick={closeMenu}>
                 {label}
               </Link>

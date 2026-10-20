@@ -1,4 +1,5 @@
 import { Link } from 'react-router';
+import { ABOUT_PAGE_ENABLED } from '../../lib/features';
 import { Brand } from '../ui/Brand';
 import { Icon } from '../ui/Icon';
 
@@ -30,11 +31,17 @@ export function SiteFooter() {
           <Brand />
           <h2 className="footer-heading">Quick Links</h2>
           <nav className="footer-links" aria-label="Footer">
-            {quickLinks.map(({ label, to }) => (
-              <Link to={to} key={to}>
-                {label}
-              </Link>
-            ))}
+            {quickLinks.map(({ label, to }) =>
+              to === '/about' && !ABOUT_PAGE_ENABLED ? (
+                <a href={to} key={to} onClick={(event) => event.preventDefault()}>
+                  {label}
+                </a>
+              ) : (
+                <Link to={to} key={to}>
+                  {label}
+                </Link>
+              ),
+            )}
           </nav>
         </div>
 
