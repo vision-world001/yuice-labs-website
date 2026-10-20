@@ -12,9 +12,9 @@ const quickLinks = [
 ];
 
 const socialLinks = [
-  { label: 'LinkedIn', href: 'https://www.linkedin.com/', icon: 'linkedin' as const },
-  { label: 'GitHub', href: 'https://github.com/', icon: 'github' as const },
-  { label: 'Telegram', href: 'https://t.me/', icon: 'send' as const },
+  { label: 'LinkedIn', href: 'https://www.linkedin.com/company/entia-finance', icon: 'linkedin' as const },
+  { label: 'GitHub', href: 'https://github.com/yuice-labs', icon: 'github' as const },
+  { label: 'Telegram', href: 'https://t.me/yuice_official', icon: 'send' as const },
 ];
 
 export function SiteFooter() {

@@ -40,7 +40,7 @@ export function JobPage({ role }: JobPageProps) {
       href: `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(pageUrl)}`,
       icon: 'linkedin',
     },
-    { label: 'Yuice Labs on GitHub', href: 'https://github.com/', icon: 'github' },
+    { label: 'Yuice Labs on GitHub', href: 'https://github.com/yuice-labs', icon: 'github' },
     {
       label: 'Share on Telegram',
       href: `https://t.me/share/url?url=${encodeURIComponent(pageUrl)}&text=${encodeURIComponent(shareText)}`,
