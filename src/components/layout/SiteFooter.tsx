@@ -5,7 +5,7 @@ import { Icon } from '../ui/Icon';
 
 const quickLinks = [
   { label: 'Home', to: '/' },
-  { label: 'About Us', to: '/about' },
+  // { label: 'About Us', to: '/about' },
   { label: 'How It Works', to: '/#how-it-works' },
   { label: 'Trust & Security', to: '/#trust' },
   { label: 'Careers', to: '/careers' },

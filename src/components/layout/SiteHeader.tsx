@@ -14,7 +14,7 @@ const navigationLinks = [
   { label: 'Operation', href: '/#ai-operations' },
   { label: 'Trust', href: '/#trust' },
   { label: 'Careers', href: '/careers' },
-  { label: 'About', href: '/about' },
+  // { label: 'About US', href: '/about' },
 ];
 
 export function SiteHeader() {
